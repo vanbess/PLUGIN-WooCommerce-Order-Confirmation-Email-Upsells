@@ -8,8 +8,8 @@ add_action('admin_menu', 'sbwc_email_upsell_admin_menu');
 function sbwc_email_upsell_admin_menu()
 {
     add_menu_page(
-        __('SBWC Email Upsell Settings', 'domain'),
-        __('SBWC Email Upsells', 'domain'),
+        __('SBWC Email Upsell Settings', 'woocommerce'),
+        __('SBWC Email Upsells', 'woocommerce'),
         'manage_options',
         'sbwc-email-upsell-settings',
         'sbwc_email_upsell_settings_page'
@@ -37,12 +37,12 @@ function sbwc_email_upsell_settings_page()
 
 ?>
     <div class="wrap">
-        <h1><?php _e('SBWC Email Upsell Settings', 'default'); ?></h1>
+        <h1><?php _e('SBWC Email Upsell Settings', 'woocommerce'); ?></h1>
 
         <!-- nav tabs -->
         <h2 id="sbwc_email_us_admin_tab_links" class="nav-tab-wrapper">
-            <a id="product-ids-link" href="#product-ids" class="nav-tab"><?php _e('Product IDs', 'default'); ?></a>
-            <a id="page-ids-link" href="#page-ids" class="nav-tab"><?php _e('Page IDs', 'default'); ?></a>
+            <a id="product-ids-link" href="#product-ids" class="nav-tab"><?php _e('Product IDs', 'woocommerce'); ?></a>
+            <a id="page-ids-link" href="#page-ids" class="nav-tab"><?php _e('Page IDs', 'woocommerce'); ?></a>
         </h2>
 
         <!-- options form -->
@@ -53,7 +53,7 @@ function sbwc_email_upsell_settings_page()
             <!-- product ids tab -->
             <div id="product-ids" class="tab-content">
 
-                <p><i><b><?php _e('Enter the product IDs which you want to display as upsells in new order emails', 'default'); ?></b></i></p>
+                <p><i><b><?php _e('Enter the product IDs which you want to display as upsells in new order emails', 'woocommerce'); ?></b></i></p>
 
                 <select class="sbwc_email_upsell_product_ids" name="sbwc_email_upsell_product_ids[]" multiple="multiple" style="width:400px;">
 
@@ -104,7 +104,7 @@ function sbwc_email_upsell_settings_page()
 
             <!-- page ids and image tab -->
             <div id="page-ids" class="tab-content">
-                <p><i><b><?php _e('Enter the page IDs you want to display upsells for in new order emails.', 'default'); ?></b></i></p>
+                <p><i><b><?php _e('Enter the page IDs and image URLs you want to display upsells for in new order emails.', 'woocommerce'); ?></b></i></p>
 
                 <?php
 
@@ -115,20 +115,20 @@ function sbwc_email_upsell_settings_page()
                     for ($i = 0; $i < count($page_ids); $i++) : ?>
                         <!-- page id input set (page id + image + add button) -->
                         <div class="page-id-input-set">
-                            <input type="text" name="sbwc_email_upsell_page_ids[]" value="<?php echo esc_attr($page_ids[$i]); ?>" placeholder="<?php _e('Page ID', 'default'); ?>">
-                            <input type="text" name="sbwc_email_upsell_page_ids_image[]" value="<?php echo esc_attr($page_ids_image[$i]); ?>" placeholder="<?php _e('Image URL', 'default'); ?>">
-                            <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'default'); ?></button>
-                            <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'default'); ?></button>
+                            <input type="text" name="sbwc_email_upsell_page_ids[]" value="<?php echo esc_attr($page_ids[$i]); ?>" placeholder="<?php _e('Page ID', 'woocommerce'); ?>">
+                            <input type="text" name="sbwc_email_upsell_page_ids_image[]" value="<?php echo esc_attr($page_ids_image[$i]); ?>" placeholder="<?php _e('Image URL', 'woocommerce'); ?>">
+                            <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'woocommerce'); ?></button>
+                            <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'woocommerce'); ?></button>
                         </div>
                     <?php endfor;
                 else : ?>
 
                     <!-- page id input set (page id + image + add button) -->
                     <div class="page-id-input-set">
-                        <input type="text" name="sbwc_email_upsell_page_ids[]" value="" placeholder="<?php _e('Page ID', 'default'); ?>">
-                        <input type="text" name="sbwc_email_upsell_page_ids_image[]" value="" placeholder="<?php _e('Image URL', 'default'); ?>">
-                        <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'default'); ?></button>
-                        <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'default'); ?></button>
+                        <input type="text" name="sbwc_email_upsell_page_ids[]" value="" placeholder="<?php _e('Page ID', 'woocommerce'); ?>">
+                        <input type="text" name="sbwc_email_upsell_page_ids_image[]" value="" placeholder="<?php _e('Image URL', 'woocommerce'); ?>">
+                        <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'woocommerce'); ?></button>
+                        <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'woocommerce'); ?></button>
                     </div>
                 <?php endif; ?>
 
