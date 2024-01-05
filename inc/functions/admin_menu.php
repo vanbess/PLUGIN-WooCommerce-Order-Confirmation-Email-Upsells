@@ -8,12 +8,193 @@ add_action('admin_menu', 'sbwc_email_upsell_admin_menu');
 function sbwc_email_upsell_admin_menu()
 {
     add_menu_page(
-        'SBWC Email Upsell Settings',
-        'SBWC Email Upsells',
+        __('SBWC Email Upsell Settings', 'domain'),
+        __('SBWC Email Upsells', 'domain'),
         'manage_options',
         'sbwc-email-upsell-settings',
-        'sbwc_email_upsell_settings_page'
+        'sbwc_email_upsell_settings_page',
+        'dashicons-email-alt',
+        20
     );
+}
+
+/**
+ * Render page id inputs
+ *
+ * @param array $languages
+ * @return void
+ */
+function sbwc_email_upsell_page_id_inputs($languages)
+{
+    // if is array $languages, create tab and associated content area for each language
+    if (is_array($languages) && count($languages) > 0) : ?>
+
+        <!-- tab links -->
+        <h3 id="sbwc_email_us_admin_tab_links" class="nav-tab-wrapper">
+            <?php foreach ($languages as $index => $language) : ?>
+                <!-- language tab -->
+                <a id="<?php echo $language; ?>-page-ids-link" href="#<?php echo $language; ?>-page-ids" class="nav-tab nav-tab-pages <?php echo ($index === 0) ? 'nav-tab-active' : ''; ?>"><?php echo strtoupper($language); ?></a>
+            <?php endforeach; ?>
+        </h3>
+
+        <!-- tab content -->
+        <?php foreach ($languages as $index => $language) : ?>
+
+            <!-- language tab content -->
+            <div id="<?php echo $language; ?>-page-ids" class="tab-content tab-content-pages <?php echo ($index === 0) ? 'nav-content-active' : ''; ?>">
+
+                <!-- page id input set (page id + image + add button) -->
+                <div class="page-id-input-set">
+                    <input type="text" class="sbwc_email_upsell_page_id_input" name="sbwc_email_upsell_page_ids_<?php echo $language ?>[]" value="" placeholder="<?php _e('Page ID', 'woocommerce'); ?>">
+                    <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image_<?php echo $language ?>[]" value="" placeholder="<?php _e('Image URL', 'woocommerce'); ?>">
+                    <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'woocommerce'); ?></button>
+                    <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'woocommerce'); ?></button>
+                </div>
+
+            </div>
+
+        <?php endforeach;
+
+    // else if is string $languages, create tab and associated content area for that language
+    elseif (is_string($languages)) : ?>
+
+        <!-- page id input set (page id + image + add button) -->
+        <div class="page-id-input-set">
+            <input type="text" class="sbwc_email_upsell_page_id_input" name="sbwc_email_upsell_page_ids[]" value="" placeholder="<?php _e('Page ID', 'woocommerce'); ?>">
+            <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image[]" value="" placeholder="<?php _e('Image URL', 'woocommerce'); ?>">
+            <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'woocommerce'); ?></button>
+            <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'woocommerce'); ?></button>
+        </div>
+
+    <?php endif;
+}
+
+/**
+ * Render product id inputs     
+ *
+ * @param array $languages
+ * @return void
+ */
+function sbwc_email_upsell_product_id_inputs($languages)
+{
+    // if is array $languages, create tab and associated content area for each language
+    if (is_array($languages) && count($languages) > 0) : ?>
+
+        <!-- tab links -->
+        <h3 id="sbwc_email_us_admin_tab_links" class="nav-tab-wrapper">
+            <?php foreach ($languages as $index => $language) : ?>
+                <!-- language tab -->
+                <a id="<?php echo $language; ?>-product-ids-link" href="#<?php echo $language; ?>-product-ids" class="nav-tab nav-tab-pages <?php echo ($index === 0) ? 'nav-tab-active' : ''; ?>"><?php echo strtoupper($language); ?></a>
+            <?php endforeach; ?>
+        </h3>
+
+        <!-- tab content -->
+        <?php foreach ($languages as $index => $language) : ?>
+
+            <!-- language tab content -->
+            <div id="<?php echo $language; ?>-product-ids" class="tab-content tab-content-pages <?php echo ($index === 0) ? 'nav-content-active' : ''; ?>">
+
+                <select class="sbwc_email_upsell_product_ids_<?php echo $language ?>" name="sbwc_email_upsell_product_ids_<?php echo $language ?>[]" multiple="multiple" style="width:400px;">
+
+                    <?php
+
+                    // Get product IDs
+                    $product_ids = get_option('sbwc_email_upsell_product_ids_' . $language);
+
+                    // display selected products
+                    foreach ($product_ids as $product_id) :
+                        $product = wc_get_product($product_id);
+                        if ($product) :
+                    ?>
+                            <option value="<?php echo $product_id; ?>" selected="selected"><?php echo $product->get_name(); ?></option>
+                    <?php
+                        endif;
+                    endforeach;
+                    ?>
+
+                </select>
+
+                <script>
+                    jQuery(document).ready(function($) {
+                        $('.sbwc_email_upsell_product_ids_<?php echo $language ?>').select2({
+                            ajax: {
+                                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                                dataType: 'json',
+                                delay: 250,
+                                data: function(params) {
+                                    return {
+                                        q: params.term,
+                                        lang: '<?php echo $language; ?>',
+                                        action: 'sbwc_email_upsells_product_search'
+                                    };
+                                },
+                                processResults: function(data) {
+                                    return {
+                                        results: data
+                                    };
+                                },
+                                cache: true
+                            },
+                            minimumInputLength: 3,
+                            placeholder: '<?php _e('Search for a product', 'woocommerce'); ?>'
+                        });
+                    });
+                </script>
+
+            </div>
+
+        <?php endforeach;
+
+    // else if is string $languages, create tab and associated content area for that language
+    elseif (is_string($languages)) : ?>
+
+        <select class="sbwc_email_upsell_product_ids" name="sbwc_email_upsell_product_ids[]" multiple="multiple" style="width:400px;">
+
+            <?php
+
+            // Get product IDs
+            $product_ids = get_option('sbwc_email_upsell_product_ids');
+
+            // display selected products
+            foreach ($product_ids as $product_id) :
+                $product = wc_get_product($product_id);
+                if ($product) :
+            ?>
+                    <option value="<?php echo $product_id; ?>" selected="selected"><?php echo $product->get_name(); ?></option>
+            <?php
+                endif;
+            endforeach;
+            ?>
+
+        </select>
+
+        <script>
+            jQuery(document).ready(function($) {
+                $('.sbwc_email_upsell_product_ids').select2({
+                    ajax: {
+                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                q: params.term,
+                                lang: '',
+                                action: 'sbwc_email_upsells_product_search'
+                            };
+                        },
+                        processResults: function(data) {
+                            return {
+                                results: data
+                            };
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 3
+                });
+            });
+        </script>
+
+    <?php endif;
 }
 
 /**
@@ -32,15 +213,17 @@ add_action('admin_footer', function () {
 function sbwc_email_upsell_settings_page()
 {
 
+    // get list of polylang languages
+    function_exists('pll_languages_list') ? $languages = pll_languages_list() : $languages = array('en');
 
-?>
+    ?>
     <div class="wrap">
-        <h1>SBWC Email Upsell Settings</h1>
+        <h1><?php _e('SBWC Email Upsell Settings', 'woocommerce'); ?></h1>
 
         <!-- nav tabs -->
-        <h2 class="nav-tab-wrapper">
-            <a href="#product-ids" class="nav-tab">Product IDs</a>
-            <a href="#page-ids" class="nav-tab">Page IDs</a>
+        <h2 id="sbwc_email_us_admin_tab_links" class="nav-tab-wrapper">
+            <a id="product-ids-link" href="#product-ids" class="nav-tab nav-tab-main"><?php _e('Product IDs', 'woocommerce'); ?></a>
+            <a id="page-ids-link" href="#page-ids" class="nav-tab nav-tab-main"><?php _e('Page IDs', 'woocommerce'); ?></a>
         </h2>
 
         <!-- options form -->
@@ -48,96 +231,35 @@ function sbwc_email_upsell_settings_page()
 
             <?php settings_fields('sbwc_email_upsell_settings_group'); ?>
 
+
             <!-- product ids tab -->
-            <div id="product-ids" class="tab-content">
+            <div id="product-ids" class="tab-content tab-content-main">
 
-                <p><i><b>Enter the product IDs which you want to display as upsells in new order emails</b></i></p>
+                <p><i><b><?php _e('Enter the product IDs which you want to display as upsells in new order emails (leave empty to disable).', 'woocommerce'); ?></b></i></p>
 
-                <select class="sbwc_email_upsell_product_ids" name="sbwc_email_upsell_product_ids[]" multiple="multiple" style="width:400px;">
-
-                    <?php
-
-                    // Get product IDs
-                    $product_ids = get_option('sbwc_email_upsell_product_ids');
-
-                    // display selected products
-                    foreach ($product_ids as $product_id) :
-                        $product = wc_get_product($product_id);
-                        if ($product) :
-                    ?>
-                            <option value="<?php echo $product_id; ?>" selected="selected"><?php echo $product->get_name(); ?></option>
-                    <?php
-                        endif;
-                    endforeach;
-                    ?>
-
-                </select>
-
-                <script>
-                    jQuery(document).ready(function($) {
-                        $('.sbwc_email_upsell_product_ids').select2({
-                            ajax: {
-                                url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                                dataType: 'json',
-                                delay: 250,
-                                data: function(params) {
-                                    return {
-                                        q: params.term,
-                                        action: 'product_search'
-                                    };
-                                },
-                                processResults: function(data) {
-                                    return {
-                                        results: data
-                                    };
-                                },
-                                cache: true
-                            },
-                            minimumInputLength: 3
-                        });
-                    });
-                </script>
+                <?php sbwc_email_upsell_product_id_inputs($languages) ?>
 
             </div>
 
             <!-- page ids and image tab -->
-            <div id="page-ids" class="tab-content">
-                <p><i><b>Enter the page IDs you want to display upsells for in new order emails.</b></i></p>
+            <div id="page-ids" class="tab-content tab-content-main">
 
-                <?php
+                <p><i><b><?php _e('Enter the page IDs and image URLs you want to display upsells for in new order emails (leave empty to disable). Note that image URL is required in order to display properly in emails.', 'woocommerce'); ?></b></i></p>
 
-                $page_ids       = get_option('sbwc_email_upsell_page_ids');
-                $page_ids_image = get_option('sbwc_email_upsell_page_ids_image');
-
-                if (is_countable($page_ids) && count($page_ids) > 0) :
-                    for ($i = 0; $i < count($page_ids); $i++) : ?>
-                        <!-- page id input set (page id + image + add button) -->
-                        <div class="page-id-input-set">
-                            <input type="text" name="sbwc_email_upsell_page_ids[]" value="<?php echo esc_attr($page_ids[$i]); ?>" placeholder="Page ID">
-                            <input type="text" name="sbwc_email_upsell_page_ids_image[]" value="<?php echo esc_attr($page_ids_image[$i]); ?>" placeholder="Image URL">
-                            <button class="button button-primary sbwc-email-upsell-add-page-id">Add</button>
-                            <button class="button button-secondary sbwc-email-upsell-rem-page-id">Remove</button>
-                        </div>
-                    <?php endfor;
-                else : ?>
-
-                    <!-- page id input set (page id + image + add button) -->
-                    <div class="page-id-input-set">
-                        <input type="text" name="sbwc_email_upsell_page_ids[]" value="" placeholder="Page ID">
-                        <input type="text" name="sbwc_email_upsell_page_ids_image[]" value="" placeholder="Image URL">
-                        <button class="button button-primary sbwc-email-upsell-add-page-id">Add</button>
-                        <button class="button button-secondary sbwc-email-upsell-rem-page-id">Remove</button>
-                    </div>
-                <?php endif; ?>
+                <?php sbwc_email_upsell_page_id_inputs($languages) ?>
 
             </div>
-            <input type="hidden" name="sbwc_email_upsell_active_tab" value="<?php echo isset($_POST['sbwc_email_upsell_active_tab']) ? $_POST['sbwc_email_upsell_active_tab'] : 'product-ids'; ?>">
 
             <!-- upsells to display -->
             <div class="tab-selector">
-                <p><i><b>Select which type of upsells you want to display in new order emails:</b></i></p>
-                <label><input type="radio" name="sbwc_email_upsell_active_tab" value="product-ids" <?php checked('product-ids', get_option('sbwc_email_upsell_active_tab')); ?>>Product IDs</label>
-                <label><input type="radio" name="sbwc_email_upsell_active_tab" value="page-ids" <?php checked('page-ids', get_option('sbwc_email_upsell_active_tab')); ?>>Page IDs</label>
+                <p><i><b><?php _e('Select which type of upsells you want to display in new order emails:', 'woocommerce'); ?></b></i></p>
+
+                <select name="sbwc_email_upsell_active_tab" id="sbwc_email_upsell_active_tab" style="width: 150px;">
+                    <option value=""><?php _e('Please select...', 'woocommerce'); ?></option>
+                    <option value="product-ids" <?php selected('product-ids', get_option('sbwc_email_upsell_active_tab')) ?>><?php _e('Product IDs', 'woocommerce'); ?></option>
+                    <option value="page-ids" <?php selected('page-ids', get_option('sbwc_email_upsell_active_tab')) ?>><?php _e('Page IDs', 'woocommerce'); ?></option>
+                </select>
+
             </div>
 
             <!-- submit -->
@@ -150,74 +272,67 @@ function sbwc_email_upsell_settings_page()
     <script>
         jQuery(document).ready(function($) {
 
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            // Hide all tab content except the first one
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            $('.tab-content').not(':first').hide();
+            // add/remove active class to page tabs and content
+            $('.nav-tab-pages').click(function(e) {
 
-            // ~~~~~~~~~~~~~~~~~~
-            // Handle tab clicks
-            // ~~~~~~~~~~~~~~~~~~
-            $('.nav-tab').click(function() {
-                // Remove active class from all tabs
-                $('.nav-tab').removeClass('nav-tab-active');
+                e.preventDefault();
 
-                // Add active class to clicked tab
+                $('.nav-tab-pages').removeClass('nav-tab-active');
                 $(this).addClass('nav-tab-active');
-
-                // Hide all tab content
-                $('.tab-content').hide();
-
-                // Show the corresponding tab content
-                $($(this).attr('href')).show();
-
-                // Update the active tab input value
-                $('input[name="sbwc_email_upsell_active_tab"]').val($(this).attr('href').replace('#', ''));
-
-                // scroll to top
-                $('html, body').animate({
-                    scrollTop: 0
-                }, 500);
+                let target = $(this).attr('href');
+                $('.tab-content-pages').removeClass('nav-content-active');
+                $(target).addClass('nav-content-active');
             });
 
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            // Set the active tab on page load
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            $('.nav-tab[href="#<?php echo get_option('sbwc_email_upsell_active_tab', 'product-ids'); ?>"]').click();
+            // set active main tab based selected option (main content)
+            var active_tab = $('#sbwc_email_upsell_active_tab').val();
+            if (active_tab) {
+                $('.nav-tab-main').removeClass('nav-tab-active');
+                $('.nav-tab-main[href="#' + active_tab + '"]').addClass('nav-tab-active');
+                $('.tab-content-main').removeClass('nav-content-active');
+                $('#' + active_tab).addClass('nav-content-active');
+            }
 
-            // ~~~~~~~~~~~~~~~~~~~~~~
-            // Add page id input set
-            // ~~~~~~~~~~~~~~~~~~~~~~
+            // set active tab content based on click tab button click
+            $('.nav-tab-main').click(function(e) {
+
+                e.preventDefault();
+
+                $('.nav-tab-main').removeClass('nav-tab-active');
+                $(this).addClass('nav-tab-active');
+                let target = $(this).attr('href');
+                $('.tab-content-main').removeClass('nav-content-active');
+                $(target).addClass('nav-content-active');
+            });
+
+            // add page id input set on click
             $(document).on('click', '.sbwc-email-upsell-add-page-id', function(e) {
                 e.preventDefault();
 
-                // Clone the first page id input set
-                var newPageIdInputSet = $('.page-id-input-set:first').clone();
+                // get language
+                let language = $(this).parent().parent().attr('id').split('-')[0];
 
-                // Clear the values
-                newPageIdInputSet.find('input').val('');
+                // html
+                let html = `
+                    <div class="page-id-input-set">
+                        <input type="text" class="sbwc_email_upsell_page_id_input" name="sbwc_email_upsell_page_ids_${language}[]" value="" placeholder="<?php _e('Page ID', 'woocommerce'); ?>">
+                        <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image_${language}[]" value="" placeholder="<?php _e('Image URL', 'woocommerce'); ?>">
+                        <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'woocommerce'); ?></button>
+                        <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'woocommerce'); ?></button>
+                    </div>
+                `;
 
-                // Append the new page id input set
-                newPageIdInputSet.appendTo('.tab-content#page-ids');
-
-                // append remove button
-                newPageIdInputSet.append('<button class="button button-secondary sbwc-email-upsell-rem-page-id">Remove</button>');
+                // append html
+                $(this).parent().parent().append(html);
 
             });
 
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            // Don't show remove button for the first page id input set
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            $('.page-id-input-set:first .sbwc-email-upsell-rem-page-id').hide();
-
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~
-            // Remove page id input set
-            // ~~~~~~~~~~~~~~~~~~~~~~~~~
+            // remove page id input set on click
             $(document).on('click', '.sbwc-email-upsell-rem-page-id', function(e) {
                 e.preventDefault();
 
-                // Remove the page id input set
-                $(this).closest('.page-id-input-set').remove();
+                // remove input set
+                $(this).parent().remove();
             });
 
         });
@@ -225,12 +340,21 @@ function sbwc_email_upsell_settings_page()
 
     <!-- CSS -->
     <style>
+        .tab-content-main,
+        .tab-content-pages {
+            display: none;
+        }
+
+        .nav-content-active {
+            display: block;
+        }
+
         .nav-tab-wrapper {
             border-bottom: 1px solid #ccc;
             margin-bottom: 20px;
         }
 
-        .nav-tab {
+        .nav-tab-main {
             display: inline-block;
             margin-right: 5px;
             padding: 10px 20px;
@@ -246,18 +370,18 @@ function sbwc_email_upsell_settings_page()
             border-bottom: none;
         }
 
-        .tab-content {
+        .tab-content-main {
             margin-bottom: 20px;
             padding: 30px;
             background: white;
             border-radius: 5px;
         }
 
-        .tab-content h3 {
+        .tab-content-main h3 {
             margin-top: 0;
         }
 
-        .tab-content textarea {
+        .tab-content-main textarea {
             width: 400px;
             height: 32px;
         }
@@ -314,6 +438,14 @@ function sbwc_email_upsell_settings_page()
         .page-id-input-set button:disabled {
             background-color: #ccc;
         }
+
+        input.sbwc_email_upsell_page_id_image_url_input {
+            width: 600px;
+        }
+
+        .tab-content>p {
+            margin-top: 0;
+        }
     </style>
 <?php
 }
@@ -325,18 +457,52 @@ add_action('admin_init', 'sbwc_email_upsell_settings_init');
 
 function sbwc_email_upsell_settings_init()
 {
-    register_setting(
-        'sbwc_email_upsell_settings_group',
-        'sbwc_email_upsell_product_ids'
-    );
-    register_setting(
-        'sbwc_email_upsell_settings_group',
-        'sbwc_email_upsell_page_ids'
-    );
-    register_setting(
-        'sbwc_email_upsell_settings_group',
-        'sbwc_email_upsell_page_ids_image'
-    );
+
+    // get list of polylang languages if plugin is active
+    if (function_exists('pll_languages_list')) {
+        $languages = pll_languages_list();
+    } else {
+        $languages = array('en');
+    }
+
+    // if polylang is active, register settings for each language
+    if (is_array($languages) && count($languages) > 0) {
+
+        foreach ($languages as $language) {
+
+            register_setting(
+                'sbwc_email_upsell_settings_group',
+                'sbwc_email_upsell_product_ids_' . $language
+            );
+            register_setting(
+                'sbwc_email_upsell_settings_group',
+                'sbwc_email_upsell_page_ids_' . $language
+            );
+            register_setting(
+                'sbwc_email_upsell_settings_group',
+                'sbwc_email_upsell_page_ids_image_' . $language
+            );
+        }
+
+
+        // else if polylang is not active, register settings for single language
+    } elseif (is_string($languages)) {
+
+        register_setting(
+            'sbwc_email_upsell_settings_group',
+            'sbwc_email_upsell_product_ids'
+        );
+        register_setting(
+            'sbwc_email_upsell_settings_group',
+            'sbwc_email_upsell_page_ids'
+        );
+        register_setting(
+            'sbwc_email_upsell_settings_group',
+            'sbwc_email_upsell_page_ids_image'
+        );
+    }
+
+    // register active tab setting
     register_setting(
         'sbwc_email_upsell_settings_group',
         'sbwc_email_upsell_active_tab'
@@ -347,40 +513,65 @@ function sbwc_email_upsell_settings_init()
 /**
  * Add AJAX callback for product search
  */
-function product_search_callback()
+function sbwc_email_upsells_product_search_callback()
 {
 
     // Get search term
     $search_term = $_GET['q'];
+    $lang        = $_GET['lang'];
 
-    // Query products
-    $args = array(
-        'post_type'      => 'product',
-        's'              => $search_term,
-        'posts_per_page' => -1,
-    );
+    if ($lang && $lang !== '') :
 
-    // Get products
-    $products = get_posts($args);
-
-    // Holds the results
-    $results = array();
-
-    // Loop through products and add to results array
-    foreach ($products as $product) {
-
-        // get polylang post language
-        function_exists('pll_get_post_language') ? $lang = pll_get_post_language($product->ID) : $lang = 'en';
-
-        $results[] = array(
-            'id'   => $product->ID,
-            'text' => $product->post_title . ' [' . strtoupper($lang) . ']',
+        // Query products
+        $args = array(
+            'post_type'      => 'product',
+            's'              => $search_term,
+            'posts_per_page' => -1,
+            'lang'           => $lang,
         );
-    }
+
+        // Get products
+        $products = get_posts($args);
+
+        // Holds the results
+        $results = array();
+
+        // Loop through products and add to results array
+        foreach ($products as $product) {
+
+            $results[] = array(
+                'id'   => $product->ID,
+                'text' => $product->post_title . ' [' . strtoupper($lang) . ']',
+            );
+        }
+
+    else :
+        // Query products
+        $args = array(
+            'post_type'      => 'product',
+            's'              => $search_term,
+            'posts_per_page' => -1,
+        );
+
+        // Get products
+        $products = get_posts($args);
+
+        // Holds the results
+        $results = array();
+
+        // Loop through products and add to results array
+        foreach ($products as $product) {
+
+            $results[] = array(
+                'id'   => $product->ID,
+                'text' => $product->post_title
+            );
+        }
+    endif;
 
     // Send results as JSON
     wp_send_json($results);
 }
 
-add_action('wp_ajax_product_search', 'product_search_callback');
-add_action('wp_ajax_nopriv_product_search', 'product_search_callback');
+add_action('wp_ajax_sbwc_email_upsells_product_search', 'sbwc_email_upsells_product_search_callback');
+add_action('wp_ajax_nopriv_sbwc_email_upsells_product_search', 'sbwc_email_upsells_product_search_callback');

@@ -5,6 +5,19 @@
  */
 add_action('woocommerce_email_footer', function ($email) {
 
+    // get order id
+    $order_id = $email->object->get_id();
+
+    // set default language
+    $lang = 'en';
+
+    // get order language (polylang)
+    if (function_exists('pll_get_post_language')) :
+        $lang = pll_get_post_language($order_id);
+    endif;
+
+
+
     // get email id
     $email_id = $email->id;
 
