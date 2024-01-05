@@ -8,8 +8,8 @@ add_action('admin_menu', 'sbwc_email_upsell_admin_menu');
 function sbwc_email_upsell_admin_menu()
 {
     add_menu_page(
-        __('SBWC Email Upsell Settings', 'domain'),
-        __('SBWC Email Upsells', 'domain'),
+        __('SBWC Email Upsell Settings', 'woocommerce'),
+        __('SBWC Email Upsells', 'woocommerce'),
         'manage_options',
         'sbwc-email-upsell-settings',
         'sbwc_email_upsell_settings_page',
@@ -17,6 +17,8 @@ function sbwc_email_upsell_admin_menu()
         20
     );
 }
+
+
 
 /**
  * Render page id inputs
@@ -252,14 +254,9 @@ function sbwc_email_upsell_settings_page()
 
             <!-- upsells to display -->
             <div class="tab-selector">
-                <p><i><b><?php _e('Select which type of upsells you want to display in new order emails:', 'woocommerce'); ?></b></i></p>
-
-                <select name="sbwc_email_upsell_active_tab" id="sbwc_email_upsell_active_tab" style="width: 150px;">
-                    <option value=""><?php _e('Please select...', 'woocommerce'); ?></option>
-                    <option value="product-ids" <?php selected('product-ids', get_option('sbwc_email_upsell_active_tab')) ?>><?php _e('Product IDs', 'woocommerce'); ?></option>
-                    <option value="page-ids" <?php selected('page-ids', get_option('sbwc_email_upsell_active_tab')) ?>><?php _e('Page IDs', 'woocommerce'); ?></option>
-                </select>
-
+                <p><i><b>Select which type of upsells you want to display in new order emails:</b></i></p>
+                <label><input type="radio" name="sbwc_email_upsell_active_tab" value="product-ids" <?php checked('product-ids', get_option('sbwc_email_upsell_active_tab')); ?>>Product IDs</label>
+                <label><input type="radio" name="sbwc_email_upsell_active_tab" value="page-ids" <?php checked('page-ids', get_option('sbwc_email_upsell_active_tab')); ?>>Page IDs</label>
             </div>
 
             <!-- submit -->
