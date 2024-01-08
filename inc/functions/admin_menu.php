@@ -18,8 +18,6 @@ function sbwc_email_upsell_admin_menu()
     );
 }
 
-
-
 /**
  * Render page id inputs
  *
@@ -44,6 +42,29 @@ function sbwc_email_upsell_page_id_inputs($languages)
 
             <!-- language tab content -->
             <div id="<?php echo $language; ?>-page-ids" class="tab-content tab-content-pages <?php echo ($index === 0) ? 'nav-content-active' : ''; ?>">
+
+                <?php
+                // RENDER EXISTING
+
+                // get saved page ids
+                $page_ids = get_option('sbwc_email_upsell_page_ids_' . $language);
+
+                // get saved page id images
+                $page_ids_image = get_option('sbwc_email_upsell_page_ids_image_' . $language);
+
+                // if page ids exist, render inputs
+                if (is_array($page_ids) && count($page_ids) > 0) :
+
+                    // loop through page ids and render inputs
+                    foreach ($page_ids as $index => $page_id) : ?>
+                        <div class="page-id-input-set">
+                            <input type="text" class="sbwc_email_upsell_page_id_input" name="sbwc_email_upsell_page_ids_<?php echo $language ?>[]" value="<?php echo $page_id; ?>" placeholder="<?php _e('Page ID', 'woocommerce'); ?>">
+                            <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image_<?php echo $language ?>[]" value="<?php echo $page_ids_image[$index]; ?>" placeholder="<?php _e('Image URL', 'woocommerce'); ?>">
+                            <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'woocommerce'); ?></button>
+                            <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'woocommerce'); ?></button>
+                        </div>
+                <?php endforeach;
+                endif; ?>
 
                 <!-- page id input set (page id + image + add button) -->
                 <div class="page-id-input-set">
@@ -86,7 +107,7 @@ function sbwc_email_upsell_product_id_inputs($languages)
         <h3 id="sbwc_email_us_admin_tab_links" class="nav-tab-wrapper">
             <?php foreach ($languages as $index => $language) : ?>
                 <!-- language tab -->
-                <a id="<?php echo $language; ?>-product-ids-link" href="#<?php echo $language; ?>-product-ids" class="nav-tab nav-tab-pages <?php echo ($index === 0) ? 'nav-tab-active' : ''; ?>"><?php echo strtoupper($language); ?></a>
+                <a id="<?php echo $language; ?>-product-ids-link" href="#<?php echo $language; ?>-product-ids" class="nav-tab nav-tab-prods <?php echo ($index === 0) ? 'nav-tab-active' : ''; ?>"><?php echo strtoupper($language); ?></a>
             <?php endforeach; ?>
         </h3>
 
@@ -94,7 +115,7 @@ function sbwc_email_upsell_product_id_inputs($languages)
         <?php foreach ($languages as $index => $language) : ?>
 
             <!-- language tab content -->
-            <div id="<?php echo $language; ?>-product-ids" class="tab-content tab-content-pages <?php echo ($index === 0) ? 'nav-content-active' : ''; ?>">
+            <div id="<?php echo $language; ?>-product-ids" class="tab-content tab-content-prods <?php echo ($index === 0) ? 'nav-content-active' : ''; ?>">
 
                 <select class="sbwc_email_upsell_product_ids_<?php echo $language ?>" name="sbwc_email_upsell_product_ids_<?php echo $language ?>[]" multiple="multiple" style="width:400px;">
 
@@ -220,19 +241,41 @@ function sbwc_email_upsell_settings_page()
 
     ?>
     <div class="wrap">
-        <h1><?php _e('SBWC Email Upsell Settings', 'woocommerce'); ?></h1>
+
+        <h1 id="sbwc_email_upsells_admin_page_title"><?php _e('SBWC Email Upsell Settings', 'woocommerce'); ?></h1>
 
         <!-- nav tabs -->
         <h2 id="sbwc_email_us_admin_tab_links" class="nav-tab-wrapper">
             <a id="product-ids-link" href="#product-ids" class="nav-tab nav-tab-main"><?php _e('Product IDs', 'woocommerce'); ?></a>
             <a id="page-ids-link" href="#page-ids" class="nav-tab nav-tab-main"><?php _e('Page IDs', 'woocommerce'); ?></a>
+            <a id="tracking-link" href="#tracking" class="nav-tab nav-tab-main"><?php _e('Tracking', 'woocommerce'); ?></a>
         </h2>
+
+        <!-- tracking tab -->
+        <div id="tracking" class="tab-content tab-content-main">
+
+            <h3><?php _e('Tracking', 'woocommerce'); ?></h3>
+
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th class="column-title column-primary"><b><?php _e('Product/Page ID', 'woocommerce'); ?></b></th>
+                        <th class="column-title column-primary"><b><?php _e('Visits', 'woocommerce'); ?></b></th>
+                        <th class="column-title column-primary"><b><?php _e('Emails Sent', 'woocommerce'); ?></b></th>
+                        <th class="column-title column-primary"><b><?php _e('Click Through Rate', 'woocommerce'); ?></b></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Add your tracking data here -->
+                </tbody>
+            </table>
+
+        </div>
 
         <!-- options form -->
         <form method="post" action="options.php">
 
             <?php settings_fields('sbwc_email_upsell_settings_group'); ?>
-
 
             <!-- product ids tab -->
             <div id="product-ids" class="tab-content tab-content-main">
@@ -269,6 +312,7 @@ function sbwc_email_upsell_settings_page()
     <script>
         jQuery(document).ready(function($) {
 
+            // -------------------------------------------------
             // add/remove active class to page tabs and content
             $('.nav-tab-pages').click(function(e) {
 
@@ -281,8 +325,36 @@ function sbwc_email_upsell_settings_page()
                 $(target).addClass('nav-content-active');
             });
 
+            // ---------------------------------------------------
+            // add/remove active class to product tabs and content
+            $('.nav-tab-prods').click(function(e) {
+
+                e.preventDefault();
+
+                $('.nav-tab-prods').removeClass('nav-tab-active');
+                $(this).addClass('nav-tab-active');
+                let target = $(this).attr('href');
+                $('.tab-content-prods').removeClass('nav-content-active');
+                $(target).addClass('nav-content-active');
+            });
+
+            // ---------------------------------------------------
+            // add/remove active class to tracking tabs and content
+            $('.nav-tab-tracking').click(function(e) {
+
+                e.preventDefault();
+
+                $('.nav-tab-tracking').removeClass('nav-tab-active');
+                $(this).addClass('nav-tab-active');
+                let target = $(this).attr('href');
+                $('.tab-content-tracking').removeClass('nav-content-active');
+                $(target).addClass('nav-content-active');
+            });
+
+            // --------------------------------------------------------
             // set active main tab based selected option (main content)
-            var active_tab = $('#sbwc_email_upsell_active_tab').val();
+            var active_tab = $('input[name="sbwc_email_upsell_active_tab"]:checked').val();
+
             if (active_tab) {
                 $('.nav-tab-main').removeClass('nav-tab-active');
                 $('.nav-tab-main[href="#' + active_tab + '"]').addClass('nav-tab-active');
@@ -290,6 +362,7 @@ function sbwc_email_upsell_settings_page()
                 $('#' + active_tab).addClass('nav-content-active');
             }
 
+            // --------------------------------------------------------
             // set active tab content based on click tab button click
             $('.nav-tab-main').click(function(e) {
 
@@ -302,6 +375,7 @@ function sbwc_email_upsell_settings_page()
                 $(target).addClass('nav-content-active');
             });
 
+            // -------------------------------
             // add page id input set on click
             $(document).on('click', '.sbwc-email-upsell-add-page-id', function(e) {
                 e.preventDefault();
@@ -324,6 +398,7 @@ function sbwc_email_upsell_settings_page()
 
             });
 
+            // ---------------------------------
             // remove page id input set on click
             $(document).on('click', '.sbwc-email-upsell-rem-page-id', function(e) {
                 e.preventDefault();
@@ -332,13 +407,74 @@ function sbwc_email_upsell_settings_page()
                 $(this).parent().remove();
             });
 
+            // -------------------------------------------------------
+            // check of empty page id input sets and remove any > 1
+            $('.tab-content-pages').each(function(tab_index) {
+
+                // check if inputs have empty vals and log index if found
+                $(this).find('.page-id-input-set').each(function(parent_index) {
+
+                    $(this).find('input').each(function(index) {
+
+                        if ($(this).val() === '' && parent_index > 0) {
+                            $(this).parent().remove();
+                        }
+
+                    });
+
+                });
+
+            });
+
+            // -------------------------------------------------------
+            // img url input on click show wordpress media library modal
+            $(document).on('click', '.sbwc_email_upsell_page_id_image_url_input', function(e) {
+                e.preventDefault();
+
+                // get input
+                let input = $(this);
+
+                // create media frame
+                let frame = wp.media({
+                    title: 'Select or Upload Image',
+                    button: {
+                        text: 'Use this image'
+                    },
+                    multiple: false
+                });
+
+                // on select
+                frame.on('select', function() {
+
+                    // get selected attachment
+                    let attachment = frame.state().get('selection').first().toJSON();
+
+                    // set input val
+                    input.val(attachment.url);
+                });
+
+                // open media frame
+                frame.open();
+            });
+
         });
     </script>
 
     <!-- CSS -->
     <style>
+        h1#sbwc_email_upsells_admin_page_title {
+            background: white;
+            padding: 10px 20px;
+            margin-top: -10px;
+            margin-left: -21px;
+            box-shadow: 0px 2px 5px lightgray;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
         .tab-content-main,
-        .tab-content-pages {
+        .tab-content-pages,
+        .tab-content-prods {
             display: none;
         }
 
