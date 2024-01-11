@@ -246,10 +246,56 @@ function sbwc_email_upsell_settings_page()
 
         <!-- nav tabs -->
         <h2 id="sbwc_email_us_admin_tab_links" class="nav-tab-wrapper">
-            <a id="product-ids-link" href="#product-ids" class="nav-tab nav-tab-main"><?php _e('Product IDs', 'woocommerce'); ?></a>
+            <a id="product-ids-link" href="#product-ids" class="nav-tab nav-tab-main nav-tab-active"><?php _e('Product IDs', 'woocommerce'); ?></a>
             <a id="page-ids-link" href="#page-ids" class="nav-tab nav-tab-main"><?php _e('Page IDs', 'woocommerce'); ?></a>
             <a id="tracking-link" href="#tracking" class="nav-tab nav-tab-main"><?php _e('Tracking', 'woocommerce'); ?></a>
+            <a id="order-statuses-link" href="#order-statuses" class="nav-tab nav-tab-main"><?php _e('Order Statuses', 'woocommerce'); ?></a>
+            <a id="readme-link" href="#readme" class="nav-tab nav-tab-main"><?php _e('README', 'woocommerce'); ?></a>
         </h2>
+
+        <!-- readme tab -->
+        <div id="readme" class="tab-content tab-content-main">
+
+            <h3><?php _e('README', 'woocommerce'); ?></h3>
+
+            <ul>
+                <li>
+                    <h4 class="readme-section-title"><u><b><i><?php _e('Product IDs Tab:', 'woocommerce'); ?></i></b></u></h4>
+                    <p><?php _e('Here you can search for and select the product IDs you want to add to the bottom of order emails. You can select product IDs for each supported language by typing the product name in the textarea input field; doing so will automatically fetch and display a list of products in that language which match your search terms, from which you can then select the product you want to add to the email. You can add as many products as you want, however keep in mind that 2 products are displayed per line in emails, so it is best to select products in multiples of 2 (2, 4, 6, 8 etc) to maintain a good layout in your emails.', 'woocommerce'); ?></p>
+                </li>
+
+                <li>
+                    <h4 class="readme-section-title"><u><b><i><?php _e('Page IDs Tab:', 'woocommerce'); ?></i></b></u></h4>
+                    <p><?php _e('Here you can add specific upsell pages you want to redirect users to. There are two inputs to pay mind to: the page ID, and then the associated image input for said page ID. Note that defining a matching image for each page ID you define is required in order for these upsell links to display properly in your emails, else the layout will likely break. ', 'woocommerce'); ?></p>
+
+                    <p><?php _e('Also note that you need to use images with a width and height ratio of 1:1, in other words, your images need to be square in shape, for example, 1400px wide by 1400px high and so on. It is suggested that you keep image sizes between 512px minimum and 1024px maximum in width. This will ensure that your upsells load quickly when a user views your email. When clicking on the image URL input the Media Library popup will open, allowing you the select an image from those already on the server, or allowing you to upload an image as needed. The image URL will automatically be added to the input once selected.', 'woocommerce'); ?></p>
+
+                    <p><?php _e('When clicking on the image URL input the Media Library popup will open, allowing you the select an image from those already on the server, or allowing you to upload an image as needed. The image URL will automatically be added to the input once selected.', 'woocommerce'); ?></p>
+
+                    <p><b><?php _e('Note that the same layout rule applies as with Product IDs above: you need to define your upsell page IDs and associated image URLs in multiples of 2 in order to maintain a good layout in your emails.', 'woocommerce'); ?></b></p>
+                </li>
+
+                <li>
+                    <h4 class="readme-section-title"><u><b><i><?php _e('Tracking Tab:', 'woocommerce'); ?></i></b></u></h4>
+
+                    <p><?php _e('This tab displays some basic tracking data in table format. This data includes the product/page ID, the amount of visits for that product/page ID (in other words, how many times users actually clicked on the upsells in your emails), the amount of emails sent for that particular product/page ID, and then finally the "click through rate", which is calculated as a percentage (visits/emails sent * 100, rounded up 2 decimals).', 'woocommerce'); ?></p>
+
+                    <p><?php _e('If you want to reset tracking data completely, click on the Reset Tracking button. <b>Note however that this action is not reversible, so be 100% sure you want to reset tracking before doing so!</b>', 'woocommerce'); ?></p>
+                </li>
+
+
+                <li>
+                    <h4 class="readme-section-title"><u><b><i><?php _e('Order Statuses Tab:', 'woocommerce'); ?></i></b></u></h4>
+
+                    <p><?php _e('Here you can select which order statuses you want to send upsell emails for. By default, only the "Processing" and "Completed" order statuses are selected, however you can select as many order statuses as you want.', 'woocommerce'); ?></p>
+
+                    <p><b><i><?php _e('Note that if you select multiple order statuses, upsell emails will be sent for each order status selected each time that particular email is triggered by WooCommerce.', 'woocommerce'); ?></i></b></p>
+
+                </li>
+            </ul>
+
+
+        </div>
 
         <!-- tracking tab -->
         <div id="tracking" class="tab-content tab-content-main">
@@ -278,7 +324,7 @@ function sbwc_email_upsell_settings_page()
             <?php settings_fields('sbwc_email_upsell_settings_group'); ?>
 
             <!-- product ids tab -->
-            <div id="product-ids" class="tab-content tab-content-main">
+            <div id="product-ids" class="tab-content tab-content-main nav-content-active">
 
                 <p><i><b><?php _e('Enter the product IDs which you want to display as upsells in new order emails (leave empty to disable).', 'woocommerce'); ?></b></i></p>
 
@@ -295,6 +341,59 @@ function sbwc_email_upsell_settings_page()
 
             </div>
 
+            <!-- order statuses tab -->
+            <div id="order-statuses" class="tab-content tab-content-main">
+
+                <h3><?php _e('Order Statuses', 'woocommerce'); ?></h3>
+
+                <p><i><b><?php _e('Select which order statuses you want to send upsell emails for.', 'woocommerce'); ?></b></i></p>
+
+
+                <table class="wp-list-table widefat fixed striped">
+                    <thead>
+                        <tr>
+                            <th class="column-title column-primary"><b><?php _e('Order Status', 'woocommerce'); ?></b></th>
+                            <th class="column-title column-primary"><b><?php _e('Send Email', 'woocommerce'); ?></b></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+
+                        // get order statuses
+                        $order_statuses = wc_get_order_statuses();
+
+                        // get saved order statuses
+                        $order_statuses_selected = get_option('sbwc_email_upsell_order_statuses');
+
+                        if (get_option('sbwc_email_upsell_order_statuses')) :
+
+                            // loop through order statuses and render table rows
+                            foreach ($order_statuses as $key => $value) : ?>
+
+                                <tr>
+                                    <td><?php echo $value; ?></td>
+                                    <td><input type="checkbox" name="sbwc_email_upsell_order_statuses[]" value="<?php echo $key; ?>" <?php checked(true, in_array($key, $order_statuses_selected)); ?>></td>
+                                </tr>
+
+                            <?php endforeach;
+
+                        else :
+                            // loop through order statuses and render table rows
+                            foreach ($order_statuses as $key => $value) : ?>
+
+                                <tr>
+                                    <td><?php echo $value; ?></td>
+                                    <td><input type="checkbox" name="sbwc_email_upsell_order_statuses[]" value="<?php echo $key; ?>" <?php echo ($key === 'wc-processing' || $key === 'wc-completed') ? ' checked' : ''; ?>></td>
+                                </tr>
+
+                        <?php endforeach;
+                        endif; ?>
+
+                    </tbody>
+                </table>
+
+            </div>
+
             <!-- upsells to display -->
             <div class="tab-selector">
                 <p><i><b>Select which type of upsells you want to display in new order emails:</b></i></p>
@@ -305,6 +404,8 @@ function sbwc_email_upsell_settings_page()
             <!-- submit -->
             <?php submit_button(); ?>
         </form>
+
+
 
     </div>
 
@@ -462,6 +563,10 @@ function sbwc_email_upsell_settings_page()
 
     <!-- CSS -->
     <style>
+        h4.readme-section-title {
+            font-size: 14px;
+        }
+
         h1#sbwc_email_upsells_admin_page_title {
             background: white;
             padding: 10px 20px;
@@ -639,6 +744,12 @@ function sbwc_email_upsell_settings_init()
     register_setting(
         'sbwc_email_upsell_settings_group',
         'sbwc_email_upsell_active_tab'
+    );
+
+    // register order statuses setting
+    register_setting(
+        'sbwc_email_upsell_settings_group',
+        'sbwc_email_upsell_order_statuses'
     );
 }
 

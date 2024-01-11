@@ -57,4 +57,7 @@ add_action('plugins_loaded', function () {
 
     // email
     include_once SBWC_EMAIL_UPSELL_PLUGIN_PATH . 'inc/functions/order_confirmation_email_mod.php';
+
+    // wp footer tracking update code
+    include_once SBWC_EMAIL_UPSELL_PLUGIN_PATH . 'inc/functions/footer-tracking.php';
 });
