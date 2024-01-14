@@ -60,4 +60,16 @@ add_action('plugins_loaded', function () {
 
     // wp footer tracking update code
     include_once SBWC_EMAIL_UPSELL_PLUGIN_PATH . 'inc/functions/footer-tracking.php';
+
+    // register polylang strings
+    $strings = [
+        'Current Special Offers:',
+        'You Might Be Interested In:'
+    ];
+
+    if (function_exists('pll_register_string')) :
+        foreach ($strings as $string) :
+            pll_register_string($string, $string, 'SBWC Email Upsells');
+        endforeach;
+    endif;
 });

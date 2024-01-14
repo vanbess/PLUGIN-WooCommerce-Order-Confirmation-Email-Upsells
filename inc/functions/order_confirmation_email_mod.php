@@ -3,11 +3,14 @@
 /**
  * Add email upsells to footer of WooCommerce order confirmation email
  */
+
+use Elementor\Core\Logger\Items\PHP;
+
 add_action('woocommerce_email_footer', function ($email) {
 
     try {
 
-        echo 'thou shall pass';
+        // echo 'thou shall pass';
 
         // get order id
         $order_id = $email->object->get_id();
@@ -24,9 +27,9 @@ add_action('woocommerce_email_footer', function ($email) {
         $order_statuses = get_option('sbwc_email_upsell_order_statuses');
 
         // debug order statuses
-        echo '<pre>';
-        print_r($order_statuses);
-        echo '</pre>';
+        // echo '<pre>';
+        // print_r($order_statuses);
+        // echo '</pre>';
 
         // debug lang
         // echo '<pre>';
@@ -46,9 +49,9 @@ add_action('woocommerce_email_footer', function ($email) {
         $order_status = 'wc-' . $email->object->get_status();
 
         // debug order status
-        echo '<pre>';
-        print_r($order_status);
-        echo '</pre>';
+        // echo '<pre>';
+        // print_r($order_status);
+        // echo '</pre>';
 
         // check if order status matches any status in $order_statuses array
         if (in_array($order_status, $order_statuses)) :
@@ -71,7 +74,7 @@ add_action('woocommerce_email_footer', function ($email) {
             // -------------------
             if (!empty($page_ids) && !empty($page_ids_image) && $active == 'page-ids') : ?>
 
-                <h2 style="text-align: center; margin-bottom: 30px; margin-top: 30px;"><?php _e('Current Special Offers:', 'woocommerce'); ?></h2>
+                <h2 style="text-align: center; margin-bottom: 30px; margin-top: 30px;"><?php pll_e('Current Special Offers:', 'woocommerce'); ?></h2>
 
                 <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
 
@@ -113,7 +116,7 @@ add_action('woocommerce_email_footer', function ($email) {
             // -----------------------
             if (!empty($product_upsell_ids) && $active == 'product-ids') : ?>
 
-                <h2 style="text-align: center; margin-bottom: 30px; margin-top: 30px;"><?php _e('You Might Be Interested In:', 'woocommerce'); ?></h2>
+                <h2 style="text-align: center; margin-bottom: 30px; margin-top: 30px;"><?php pll_e('You Might Be Interested In:', 'woocommerce'); ?></h2>
 
                 <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
 
@@ -159,4 +162,4 @@ add_action('woocommerce_email_footer', function ($email) {
         error_log('SBWC Email Upsells Error: ' . $th->getMessage());
         error_log('SBWC Email Upsells Error Trace: ' . $th->getTrace());
     }
-});
+}, PHP_INT_MAX, 1);

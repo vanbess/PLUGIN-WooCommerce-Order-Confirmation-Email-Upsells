@@ -59,7 +59,7 @@ function sbwc_email_upsell_page_id_inputs($languages)
                     foreach ($page_ids as $index => $page_id) : ?>
                         <div class="page-id-input-set">
                             <input type="text" class="sbwc_email_upsell_page_id_input" name="sbwc_email_upsell_page_ids_<?php echo $language ?>[]" value="<?php echo $page_id; ?>" placeholder="<?php _e('Page ID', 'woocommerce'); ?>">
-                            <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image_<?php echo $language ?>[]" value="<?php echo $page_ids_image[$index]; ?>" placeholder="<?php _e('Image URL', 'woocommerce'); ?>">
+                            <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image_<?php echo $language ?>[]" value="<?php echo $page_ids_image[$index]; ?>" placeholder="<?php _e('Click to add image URL', 'woocommerce'); ?>">
                             <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'woocommerce'); ?></button>
                             <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'woocommerce'); ?></button>
                         </div>
@@ -69,7 +69,7 @@ function sbwc_email_upsell_page_id_inputs($languages)
                 <!-- page id input set (page id + image + add button) -->
                 <div class="page-id-input-set">
                     <input type="text" class="sbwc_email_upsell_page_id_input" name="sbwc_email_upsell_page_ids_<?php echo $language ?>[]" value="" placeholder="<?php _e('Page ID', 'woocommerce'); ?>">
-                    <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image_<?php echo $language ?>[]" value="" placeholder="<?php _e('Image URL', 'woocommerce'); ?>">
+                    <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image_<?php echo $language ?>[]" value="" placeholder="<?php _e('Click to add image URL', 'woocommerce'); ?>">
                     <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'woocommerce'); ?></button>
                     <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'woocommerce'); ?></button>
                 </div>
@@ -84,7 +84,7 @@ function sbwc_email_upsell_page_id_inputs($languages)
         <!-- page id input set (page id + image + add button) -->
         <div class="page-id-input-set">
             <input type="text" class="sbwc_email_upsell_page_id_input" name="sbwc_email_upsell_page_ids[]" value="" placeholder="<?php _e('Page ID', 'woocommerce'); ?>">
-            <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image[]" value="" placeholder="<?php _e('Image URL', 'woocommerce'); ?>">
+            <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image[]" value="" placeholder="<?php _e('Click to add image URL', 'woocommerce'); ?>">
             <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'woocommerce'); ?></button>
             <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'woocommerce'); ?></button>
         </div>
@@ -305,14 +305,41 @@ function sbwc_email_upsell_settings_page()
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th class="column-title column-primary"><b><?php _e('Product/Page ID', 'woocommerce'); ?></b></th>
+                        <th class="column-title column-primary"><b><?php _e('Product/Page Title', 'woocommerce'); ?></b></th>
+                        <th class="column-title column-primary"><b><?php _e('Language', 'woocommerce'); ?></b></th>
                         <th class="column-title column-primary"><b><?php _e('Visits', 'woocommerce'); ?></b></th>
                         <th class="column-title column-primary"><b><?php _e('Emails Sent', 'woocommerce'); ?></b></th>
                         <th class="column-title column-primary"><b><?php _e('Click Through Rate', 'woocommerce'); ?></b></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Add your tracking data here -->
+
+                    <?php
+
+                    // query tracking table
+                    global $wpdb;
+                    $table_name = $wpdb->prefix . 'sbwc_email_upsell_conversions';
+                    $tracking_data = $wpdb->get_results("SELECT * FROM $table_name");
+
+                    // loop through tracking data and render table rows
+                    foreach ($tracking_data as $data) : ?>
+
+                        <tr>
+                            <td>
+                                <a style="text-decoration: underline;" href="<?php echo get_permalink($data->post_id); ?>" target="_blank">
+                                    <b><?php echo get_the_title($data->post_id); ?></b>
+                                </a>
+                            </td>
+                            <td>
+                                <?php echo strtoupper(function_exists('pll_get_post_language') ? pll_get_post_language($data->post_id) : get_locale()); ?>
+                            </td>
+                            <td><?php echo $data->click_count; ?></td>
+                            <td><?php echo $data->send_count; ?></td>
+                            <td><?php echo number_format(($data->click_count / $data->send_count * 100), 2, '.', '') ?>%</td>
+                        </tr>
+
+                    <?php endforeach; ?>
+
                 </tbody>
             </table>
 
@@ -348,6 +375,7 @@ function sbwc_email_upsell_settings_page()
 
                 <p><i><b><?php _e('Select which order statuses you want to send upsell emails for.', 'woocommerce'); ?></b></i></p>
 
+                <p class="warning"><i><b><u><?php _e('IMPORTANT:', 'woocommerce'); ?></u> <?php _e('Choosing any of the emails below assumes that you have notifications enabled for each under WooCommerce settings, and that some other plugin or custom code is not modifying the default WooCommerce email behaviour!', 'woocommerce'); ?></b></i></p>
 
                 <table class="wp-list-table widefat fixed striped">
                     <thead>
@@ -415,7 +443,7 @@ function sbwc_email_upsell_settings_page()
 
             // -------------------------------------------------
             // add/remove active class to page tabs and content
-            $('.nav-tab-pages').click(function(e) {
+            $('.nav-tab-pages').on('click', function(e) {
 
                 e.preventDefault();
 
@@ -428,7 +456,7 @@ function sbwc_email_upsell_settings_page()
 
             // ---------------------------------------------------
             // add/remove active class to product tabs and content
-            $('.nav-tab-prods').click(function(e) {
+            $('.nav-tab-prods').on('click', function(e) {
 
                 e.preventDefault();
 
@@ -441,7 +469,7 @@ function sbwc_email_upsell_settings_page()
 
             // ---------------------------------------------------
             // add/remove active class to tracking tabs and content
-            $('.nav-tab-tracking').click(function(e) {
+            $('.nav-tab-tracking').on('click', function(e) {
 
                 e.preventDefault();
 
@@ -465,7 +493,7 @@ function sbwc_email_upsell_settings_page()
 
             // --------------------------------------------------------
             // set active tab content based on click tab button click
-            $('.nav-tab-main').click(function(e) {
+            $('.nav-tab-main').on('click', function(e) {
 
                 e.preventDefault();
 
@@ -488,7 +516,7 @@ function sbwc_email_upsell_settings_page()
                 let html = `
                     <div class="page-id-input-set">
                         <input type="text" class="sbwc_email_upsell_page_id_input" name="sbwc_email_upsell_page_ids_${language}[]" value="" placeholder="<?php _e('Page ID', 'woocommerce'); ?>">
-                        <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image_${language}[]" value="" placeholder="<?php _e('Image URL', 'woocommerce'); ?>">
+                        <input type="text" class="sbwc_email_upsell_page_id_image_url_input" name="sbwc_email_upsell_page_ids_image_${language}[]" value="" placeholder="<?php _e('Click to add image URL', 'woocommerce'); ?>">
                         <button class="button button-primary sbwc-email-upsell-add-page-id"><?php _e('Add', 'woocommerce'); ?></button>
                         <button class="button button-secondary sbwc-email-upsell-rem-page-id"><?php _e('Remove', 'woocommerce'); ?></button>
                     </div>
@@ -563,6 +591,10 @@ function sbwc_email_upsell_settings_page()
 
     <!-- CSS -->
     <style>
+        p.warning {
+            color: var(--wc-red);
+        }
+
         h4.readme-section-title {
             font-size: 14px;
         }
