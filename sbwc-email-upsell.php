@@ -3,7 +3,7 @@
 /**
  * Plugin Name: SBWC WooCommerce Order Confirmation Email Upsells
  * Description: This plugin adds upsell products to the WooCommerce order confirmation email.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: WC Bessinger
  * License: GPL2
  */

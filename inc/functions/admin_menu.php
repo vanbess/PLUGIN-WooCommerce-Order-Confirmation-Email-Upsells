@@ -7,13 +7,13 @@ add_action('admin_menu', 'sbwc_email_upsell_admin_menu');
 
 function sbwc_email_upsell_admin_menu()
 {
-    add_menu_page(
+    add_submenu_page(
+        'woocommerce',
         __('SBWC Email Upsell Settings', 'woocommerce'),
         __('SBWC Email Upsells', 'woocommerce'),
         'manage_options',
         'sbwc-email-upsell-settings',
         'sbwc_email_upsell_settings_page',
-        'dashicons-email-alt',
         20
     );
 }
