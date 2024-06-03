@@ -1,4 +1,4 @@
-# Order Confirmation Email Upsells for WooCommerce
+# PLUGIN: Order Confirmation Email Upsells for WooCommerce
 
 Simple plugin to add upsells to the WooCommerce order confirmation email footer.
 
